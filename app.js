@@ -17,12 +17,17 @@ app.use('/graphql', graphqlHTTP({
 }));
 
 
-mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.5or1o.mongodb.net/graphql-testing?retryWrites=true&w=majority`, { useNewUrlParser: true });
+mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.5or1o.mongodb.net/graphql-testing?retryWrites=true&w=majority`, {
+    useNewUrlParser: true,
+    useFindAndModify: true,
+    useUnifiedTopology: true,
+    useCreateIndex: true
+});
 
 var db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'connection errror:'));
 db.once('open', function () {
-    console.log('🚀 Connection open');
+    console.log('🚀 Server running:');
     app.listen(5000);
 });
