@@ -1,6 +1,5 @@
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import './App.css';
-
 import Mainnavigation from './component/navigation/Mainnavigation';
 import Auth from './pages/Auth';
 import Event from './pages/Event';
