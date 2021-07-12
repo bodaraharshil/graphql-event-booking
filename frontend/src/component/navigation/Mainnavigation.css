@@ -33,3 +33,8 @@
 .main_navigation_item a.active{
     color: #f8e264;   
 }
+
+.main_navigation_item a:hover,
+.main_navigation_item a.active{
+    color: #f8e264;   
+}
