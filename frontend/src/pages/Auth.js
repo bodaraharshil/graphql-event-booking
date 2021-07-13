@@ -95,8 +95,8 @@ class Authpage extends React.Component {
                     <input type="password" name="password" placeholder="Password" ref={this.passwordEl} />
                 </div>
                 <div className="form-actions">
-                    <button type="submit" >Submit</button>
-                    <button type="button" onClick={this.switchModelHandler}>Switch to {this.state.isLogin ? 'Signup' : 'Login'}</button>
+                    <button type="submit" className="btn-grad">Submit</button>
+                    <button type="button" className="btn-grad" onClick={this.switchModelHandler}>Switch to {this.state.isLogin ? 'Signup' : 'Login'}</button>
                 </div>
             </form>
         )

@@ -11,11 +11,10 @@ const Mainnavigation = (props) => {
                 return (
                     <header className="main_navigation">
                         <div className="main_navigation_logo">
-                            <h1>EasyEvent</h1>
+                            <h2>EasyEvent</h2>
                         </div>
-                        <nav className="main_navigation_item">
+                        <nav className="main_navigation_item text-center">
                             <ul>
-                                {console.log("123456789012345678963", context)}
                                 {
                                     !context.token &&
                                     <li>
@@ -27,12 +26,19 @@ const Mainnavigation = (props) => {
                                 </li>
                                 {
                                     context.token &&
-                                    <li>
-                                        <NavLink to="/booking">Bookings</NavLink>
-                                    </li>
+                                    <>
+                                        <li>
+                                            <NavLink to="/booking">Bookings</NavLink>
+                                        </li>
+
+                                    </>
                                 }
                             </ul>
                         </nav>
+                        {
+                            context.token &&
+                            <button className="btn-grad" onClick={context.logout}>Logout</button>
+                        }
                     </header>
                 )
             }
