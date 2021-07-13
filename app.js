@@ -1,8 +1,10 @@
+require('dotenv')
 const express = require('express');
 const bodyParser = require('body-parser');
 const { graphqlHTTP } = require('express-graphql');
 const mongoose = require('mongoose');
 const isAuth = require("./middleware/is-auth");
+const cors = require("cors");
 
 const graphqlSchema = require('./graphql/schema/index');
 const graphqlresolver = require('./graphql/resolver/index');
@@ -11,6 +13,7 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 
 app.use(bodyParser.json());
+app.use(cors());
 
 app.use(isAuth)
 
@@ -19,7 +22,6 @@ app.use('/graphql', graphqlHTTP({
     rootValue: graphqlresolver,
     graphiql: true
 }));
-
 
 mongoose.connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.5or1o.mongodb.net/graphql-testing?retryWrites=true&w=majority`, {
     useNewUrlParser: true,

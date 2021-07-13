@@ -3,10 +3,20 @@ import "./auth.css";
 
 class Authpage extends React.Component {
 
+    state = {
+        isLogin: ""
+    }
+
     constructor(props) {
         super(props);
         this.emailEl = React.createRef();
         this.passwordEl = React.createRef();
+    }
+
+    switchModelHandler = async () => {
+        this.setState(prevState => {
+            return { isLogin: !prevState.isLogin }
+        })
     }
 
     submitHandler = async (event) => {
@@ -16,25 +26,51 @@ class Authpage extends React.Component {
         if (email.trim().length === 0 || password.trim().length === 0) {
             return;
         }
-        const requestBody = {
-            query: `
-                mutation($email:String!,$password:String!) {
-                    createUser(userInput:{email:$email,password:$password}) {
-                        _id
-                        email
-                        password
+        let requestBody = "";
+        if (!this.state.isLogin) {
+            requestBody = {
+                query: `
+                    mutation($email:String!,$password:String!) {
+                        createUser(userInput:{email:$email,password:$password}) {
+                            _id
+                            email
+                            password
+                        }
                     }
-                }
-            `,
-            variables: { password, email }
-        };
+                `,
+                variables: { password, email }
+            };
+        }
+        else {
+            requestBody = {
+                query: `
+                    query($email:String!,$password:String!) {
+                        login(email:$email,password:$password) {
+                            userId
+                            token
+                            tokenExpiration
+                        }
+                    }
+                `,
+                variables: { password, email }
+            };
+        }
         await fetch('http://localhost:5000/graphql', {
             method: 'POST',
             body: JSON.stringify(requestBody),
             headers: {
                 'Content-Type': 'application/json'
             }
-        });
+        }).then((res) => {
+            if (res.status !== 200 && res.status !== 201) {
+                throw new Error("Failed!");
+            }
+            return res.json();
+        }).then((resData) => {
+            console.log(resData);
+        }).catch((error) => {
+            console.log(error);
+        })
     }
 
     render() {
@@ -50,7 +86,7 @@ class Authpage extends React.Component {
                 </div>
                 <div className="form-actions">
                     <button type="submit" >Submit</button>
-                    <button type="button">Switch to Signup</button>
+                    <button type="button" onClick={this.switchModelHandler}>Switch to {this.state.isLogin ? 'Signup' : 'Login'}</button>
                 </div>
             </form>
         )
