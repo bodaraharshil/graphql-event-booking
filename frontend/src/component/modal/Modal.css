@@ -1,5 +1,5 @@
 .modal{
-    width: 90%;
+    width: 27rem;
     background: #fff;
     box-shadow: 0 2px 8px rgba(0,0,0,0.26);
     position: fixed;
@@ -9,8 +9,8 @@
 
 @media (min-width:768px) {
     .modal{
-        width: 50rem;
-        left:calc((100% - 50rem) / 2);
+        width:  27rem;
+        left:calc((100% - 27rem) / 2);
     }
 }
 
