@@ -1,11 +1,14 @@
 import React from 'react';
 import "./auth.css";
+import AuthContext from '../context/auth-context';
 
 class Authpage extends React.Component {
 
+    static contextType = AuthContext;
     state = {
         isLogin: ""
     }
+
 
     constructor(props) {
         super(props);
@@ -44,17 +47,19 @@ class Authpage extends React.Component {
         else {
             requestBody = {
                 query: `
-                    query($email:String!,$password:String!) {
-                        login(email:$email,password:$password) {
-                            userId
-                            token
-                            tokenExpiration
+                        query($email:String!,$password:String!) {
+                            login(email:$email,password:$password) {
+                                userId
+                                token
+                                tokenExpiration
+                            }
                         }
-                    }
-                `,
+                    `,
                 variables: { password, email }
             };
         }
+
+
         await fetch('http://localhost:5000/graphql', {
             method: 'POST',
             body: JSON.stringify(requestBody),
@@ -67,7 +72,12 @@ class Authpage extends React.Component {
             }
             return res.json();
         }).then((resData) => {
-            console.log(resData);
+            if (resData.data.login.token) {
+                this.context.login(
+                    resData.data.login.token,
+                    resData.data.login.userId,
+                    resData.data.login.tokenExpiration)
+            }
         }).catch((error) => {
             console.log(error);
         })
