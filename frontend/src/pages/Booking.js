@@ -1,14 +1,17 @@
 import React from 'react';
 import AuthContext from '../context/auth-context';
 import Spinner from '../component/Spinner/Spinner';
+import './Booking.css';
 import Bookinglist from '../component/Bookings/Bookinglist/Bookinglist';
+import Bookingchart from '../component/Bookings/Bookingchart/Bookingchart';
 
 
 class Booking extends React.Component {
 
     state = {
         isLoading: false,
-        bookings: []
+        bookings: [],
+        outputType: "list"
     };
 
     static contextType = AuthContext
@@ -100,15 +103,35 @@ class Booking extends React.Component {
         })
     }
 
+    changeOutputtypeHandler = (outputType) => {
+        if (outputType === 'list') {
+            this.setState({ outputType: 'list' })
+        }
+        else if (outputType === 'chart') {
+            this.setState({ outputType: 'chart', });
+        }
+    }
+
     render() {
+        let content = <Spinner />;
+        if (!this.state.isLoading) {
+            content = (
+                <React.Fragment>
+                    <div style={{ display: 'flex', justifyContent: 'center' }} className="button-control">
+                        <button className="activedata" onClick={this.changeOutputtypeHandler.bind(this, 'list')} className="btn-grad">List</button>
+                        <button className="actactivedataive" onClick={this.changeOutputtypeHandler.bind(this, 'chart')} className="btn-grad">Chart</button>
+                    </div >
+                    {
+                        this.state.outputType === 'list' ?
+                            <Bookinglist bookings={this.state.bookings} onDeleteBooking={this.DeleteBookinghandler} />
+                            : <Bookingchart bookings={this.state.bookings} />
+                    }
+                </React.Fragment >
+            )
+        }
         return (
             <>
-                {
-                    this.state.isLoading ?
-                        <Spinner />
-                        :
-                        <Bookinglist bookings={this.state.bookings} onDeleteBooking={this.DeleteBookinghandler} />
-                }
+                {content}
             </>
         )
     }
