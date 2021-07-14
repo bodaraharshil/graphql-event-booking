@@ -3,7 +3,6 @@ const User = require("../../models/user");
 const { dateTosting } = require("../../helpers/date");
 
 const { transformEvent } = require("./merge");
-const { await } = require(".");
 
 
 
@@ -13,7 +12,7 @@ module.exports = {
         try {
             const events = await Event.find();
             return events.map((event) => {
-                return transformEvent(event)
+                return transformEvent(event);
             })
         }
         catch (error) {

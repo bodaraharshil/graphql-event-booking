@@ -8,7 +8,8 @@ import AuthContext from '../context/auth-context';
 class Event extends React.Component {
 
     state = {
-        creating: false
+        creating: false,
+        events: []
     }
 
     static contextType = AuthContext
@@ -24,6 +25,11 @@ class Event extends React.Component {
     createEventHandler = () => {
         this.setState({ createing: true })
     }
+
+    componentDidMount() {
+        this.fetchEvent();
+    }
+
 
     modalConfirm = async (e) => {
         e.preventDefault();
@@ -66,6 +72,7 @@ class Event extends React.Component {
             }
             return res.json();
         }).then((resData) => {
+            this.fetchEvent();
         }).catch((error) => {
             console.log(error);
         })
@@ -79,17 +86,13 @@ class Event extends React.Component {
     fetchEvent = async () => {
         let requestBody = {
             query: `
-                    query($title:String!,$price:Float!,$date:String!,$description:String!) {
+                    query {
                         events {
                             _id
                             title
                             description
                             price
                             date
-                            creator{
-                                _id
-                                email
-                            }
                         }
                     }
                 `,
@@ -106,12 +109,19 @@ class Event extends React.Component {
             }
             return res.json();
         }).then((resData) => {
+            const event = resData.data.events;
+            this.setState({ events: event })
         }).catch((error) => {
             console.log(error);
         })
     }
 
     render() {
+
+        const eventlist = this.state.events.map((event) => {
+            return <li key={event._id} className="event_list-item">{event.title}</li>
+        })
+
         return (
             <React.Fragment>
                 {
@@ -148,9 +158,7 @@ class Event extends React.Component {
                     </div>
                 }
                 <ul className="event_list">
-                    <li className="event_list-item">Test</li>
-                    <li className="event_list-item">Test</li>
-                    <li className="event_list-item">Test</li>
+                    {eventlist}
                 </ul>
             </React.Fragment >
         )
