@@ -38,6 +38,7 @@ const transformEvent = event => {
     return {
         ...event._doc,
         _id: event._id,
+        date: dateTosting(event._doc.date).toString(),
         creator: user.bind(this, event.creator)
     }
 }

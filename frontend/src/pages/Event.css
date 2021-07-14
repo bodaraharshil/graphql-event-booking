@@ -41,3 +41,14 @@
     padding: 1rem;
     border:1px solid #01d1d1
 }
+.booking_list{
+    text-align: -webkit-center;
+}
+.booking_list li{
+    width: 200px;
+    border:1px solid gray;
+    border-radius: 5px;
+    list-style: none;
+    padding: 10px;
+    text-align: left;
+}

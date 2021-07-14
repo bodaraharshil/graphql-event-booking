@@ -4,12 +4,17 @@ import './Event.css';
 import Modal from '../component/modal/modal';
 import Backdrop from '../component/Backdrop/Backdrop';
 import AuthContext from '../context/auth-context';
+import Eventlist from '../component/Events/Eventlist/Eventlist';
+import Spinner from '../component/Spinner/Spinner';
 
 class Event extends React.Component {
 
     state = {
         creating: false,
-        events: []
+        events: [],
+        isLoading: false,
+        selectedEvent: null,
+        isActive: true
     }
 
     static contextType = AuthContext
@@ -28,6 +33,10 @@ class Event extends React.Component {
 
     componentDidMount() {
         this.fetchEvent();
+    }
+
+    componentWillUnmount() {
+        this.isActive = false
     }
 
 
@@ -49,10 +58,6 @@ class Event extends React.Component {
                             description
                             price
                             date
-                            creator{
-                                _id
-                                email
-                            }
                         }
                     }
                 `,
@@ -72,18 +77,35 @@ class Event extends React.Component {
             }
             return res.json();
         }).then((resData) => {
+            this.setState(prevState => {
+                const updateEvent = [...prevState.events];
+                updateEvent.push({
+                    _id: this.context.userId,
+                    title: resData.data.title,
+                    description: resData.data.description,
+                    price: resData.data.price,
+                    date: resData.data.date,
+                    creator: {
+                        _id: this.context.userId
+                    }
+                });
+                return {
+                    events: updateEvent
+                };
+            })
             this.fetchEvent();
         }).catch((error) => {
             console.log(error);
         })
-        this.setState({ createing: false })
+        this.setState({ createing: false, selectedEvent: null })
     }
 
     modalCancel = () => {
-        this.setState({ createing: false })
+        this.setState({ createing: false, selectedEvent: null })
     }
 
     fetchEvent = async () => {
+        this.setState({ isLoading: true });
         let requestBody = {
             query: `
                     query {
@@ -93,6 +115,10 @@ class Event extends React.Component {
                             description
                             price
                             date
+                            creator {
+                                _id
+                                email
+                            }
                         }
                     }
                 `,
@@ -110,7 +136,58 @@ class Event extends React.Component {
             return res.json();
         }).then((resData) => {
             const event = resData.data.events;
-            this.setState({ events: event })
+            if (this.state.isActive) {
+                this.setState({ events: event, isLoading: false })
+            }
+        }).catch((error) => {
+            console.log(error);
+            if (this.state.isActive) {
+                this.setState({ isLoading: false, });
+            }
+        })
+    }
+
+    showDetailHandler = (eventId) => {
+        this.setState(prevState => {
+            const selectedevent = prevState.events.find(e => e._id === eventId);
+            return { selectedEvent: selectedevent }
+        })
+    }
+
+    bookEventHandler = async (e) => {
+        e.preventDefault();
+        if (!this.context.token) {
+            this.setState({ selectedEvent: null });
+            return;
+        }
+        const id = this.state.selectedEvent._id;
+        let requestBody = {
+            query: `
+                    mutation {
+                        bookEvent(eventId:"${id}") {
+                            _id
+                            createdAt
+                            updatedAt
+                        }
+                    }
+                `
+        };
+        let token = this.context.token;
+        await fetch('http://localhost:5000/graphql', {
+            method: 'POST',
+            body: JSON.stringify(requestBody),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        }).then((res) => {
+            if (res.status !== 200 && res.status !== 201) {
+                throw new Error("Failed!");
+            }
+            return res.json();
+        }).then((resData) => {
+            console.log("{}{}{}", resData);
+            this.setState({ selectedEvent: null });
         }).catch((error) => {
             console.log(error);
         })
@@ -118,17 +195,13 @@ class Event extends React.Component {
 
     render() {
 
-        const eventlist = this.state.events.map((event) => {
-            return <li key={event._id} className="event_list-item">{event.title}</li>
-        })
-
         return (
             <React.Fragment>
                 {
                     this.state.createing &&
                     <>
                         <Backdrop />
-                        <Modal title={'Add Event'} canCancel canConfirm onConfirm={this.modalConfirm} onCancel={this.modalCancel}>
+                        <Modal title={'Add Event'} canCancel canConfirm Confirmtext="Confirm" onConfirm={this.modalConfirm} onCancel={this.modalCancel}>
                             <form>
                                 <div className="form-control">
                                     <label htmlFor="title">Title</label>
@@ -157,9 +230,22 @@ class Event extends React.Component {
                         <button className="btn-grad" onClick={this.createEventHandler}>Crate Event</button>
                     </div>
                 }
-                <ul className="event_list">
-                    {eventlist}
-                </ul>
+                {
+                    this.state.selectedEvent &&
+                    <>
+                        <Backdrop />
+                        <Modal title={this.state.selectedEvent.title} canCancel Confirmtext="Book" canConfirm onConfirm={this.bookEventHandler} onCancel={this.modalCancel} confirmText="Book">
+                            <h2>{this.state.selectedEvent.title}</h2>
+                            <h4>${this.state.selectedEvent.price}-{new Date(this.state.selectedEvent.date).toLocaleDateString()}</h4>
+                            <p>{this.state.selectedEvent.description}</p>
+                        </Modal>
+                    </>
+                }
+                {
+                    this.state.isLoading ?
+                        <Spinner />
+                        : <Eventlist events={this.state.events} authuserId={this.context.userId} onViewdetail={this.showDetailHandler} />
+                }
             </React.Fragment >
         )
     }
