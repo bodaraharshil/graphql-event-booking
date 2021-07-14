@@ -14,7 +14,7 @@ const userLoader = new DataLoader((userIds) => {
 const user = async (userId) => {
     try {
         const user = await userLoader.load(userId.toString());
-        return { ...user._doc, _id: user._id, createEvents: events.bind(this, user._doc.createEvents) }
+        return { ...user._doc, _id: user._id, createEvents: () => eventLoader.loadMany(user._doc.createEvents) }
     }
     catch (error) {
         throw error;

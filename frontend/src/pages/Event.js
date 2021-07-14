@@ -160,17 +160,19 @@ class Event extends React.Component {
             this.setState({ selectedEvent: null });
             return;
         }
-        const id = this.state.selectedEvent._id;
         let requestBody = {
             query: `
-                    mutation {
-                        bookEvent(eventId:"${id}") {
+                    mutation bookEvent($id:ID!){
+                        bookEvent(eventId:$id) {
                             _id
                             createdAt
                             updatedAt
                         }
                     }
-                `
+                `,
+            variables: {
+                id: this.state.selectedEvent._id
+            }
         };
         let token = this.context.token;
         await fetch('http://localhost:5000/graphql', {
