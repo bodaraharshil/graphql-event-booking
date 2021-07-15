@@ -33,6 +33,7 @@ class Booking extends React.Component {
                                 _id
                                 title
                                 date
+                                price
                             }
                         }
                     }
