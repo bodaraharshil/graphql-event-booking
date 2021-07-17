@@ -60,7 +60,7 @@ class Authpage extends React.Component {
         }
 
 
-        await fetch('http://localhost:5000/graphql', {
+        await fetch(`${process.env.REACT_APP_NODE_API}/graphql`, {
             method: 'POST',
             body: JSON.stringify(requestBody),
             headers: {
